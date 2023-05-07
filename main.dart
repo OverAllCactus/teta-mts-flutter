@@ -1,10 +1,6 @@
 import 'src/app/Game.dart';
 
 void main() {
-    String? input;
-    print('////////////////////////');
-    print("Hello this is BlackJack!");
-    print('////////////////////////');
-    print('\n');    
+    print('Hello this is BlackJack!\n');    
     Game.mainLoop();
   }
