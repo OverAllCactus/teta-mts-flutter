@@ -3,28 +3,40 @@ import 'package:chat_app/services/user_service.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class DatabaseService {
+  final _dbRef = FirebaseDatabase.instance.ref('messages');
 
-  Future getData() async {
+  Future<void> testData() async {
     final ref = FirebaseDatabase.instance.ref();
     final snapshot = await ref.child('message').get();
-    if(snapshot.exists){
+    if (snapshot.exists) {
+      print('test value:');
       print(snapshot.value);
-
-    }else{
+    } else {
       print('No data');
     }
   }
 
-  Future sendMessage(text) async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref("messages");
-  final userService = UserService();
-  String? userFromService = await userService.getUser();
-    final message = Message(
-      userId: userFromService ?? '567567', 
-      text: text, 
-      timestamp: DateTime.now().microsecondsSinceEpoch.toString());
+  Stream<List<Message>> get messages => _dbRef.onValue.map((e) {
+        List<Message> messageList = [];
+        var child = e.snapshot.children;
+        child.forEach((element) {
+          var map = element.value as Map<String, dynamic>;
+          Message message = Message.fromMap(map);
+          messageList.add(message);
+        });
+        return messageList;
+      });
 
-      final messageRef = ref.push();
-      await messageRef.set(message.toJson());
+  Future<void> sendMessage(text) async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref("messages");
+    final userService = UserService();
+    String? userFromService = await userService.getUser();
+    final message = Message(
+        userId: userFromService ?? '567567',
+        text: text,
+        timestamp: DateTime.now().millisecondsSinceEpoch.toInt());
+
+    final messageRef = ref.push();
+    await messageRef.set(message.toJson());
   }
 }
