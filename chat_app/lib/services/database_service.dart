@@ -34,7 +34,7 @@ class DatabaseService {
     final message = Message(
         userId: userFromService ?? '567567',
         text: text,
-        timestamp: DateTime.now().millisecondsSinceEpoch.toInt());
+        timestamp: DateTime.now().millisecondsSinceEpoch);
 
     final messageRef = ref.push();
     await messageRef.set(message.toJson());
