@@ -1,11 +1,11 @@
-import 'package:chat_app/models/Message.dart';
+import 'package:chat_app/models/message/message.dart';
 import 'package:chat_app/services/database_service.dart';
 import 'package:chat_app/services/user_service.dart';
+import 'package:chat_app/view/messageForm_view.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'view/messagesList_view.dart';
 import 'firebase_options.dart';
-import 'package:timeago/timeago.dart' as timeago;
-import 'package:string_to_hex/string_to_hex.dart';
 
 void main() async {
   final userService = UserService();
@@ -45,6 +45,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _controller = TextEditingController();
+  List<Message> messageList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -55,56 +56,10 @@ class _MyHomePageState extends State<MyHomePage> {
         body: StreamBuilder(
           stream: DatabaseService().messages,
           builder: (context, snapshot) {
-            List<Message> messageList = [];
+            // List<Message> messageList = [];
             if (snapshot.hasData && snapshot.data != null) {
               messageList = snapshot.data!;
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ListView.builder(
-                  reverse: true,
-                  itemCount: messageList.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                messageList[index].userId,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(StringToHex.toColor(
-                                        messageList[index].userId))),
-                              ),
-                              const SizedBox(
-                                width: 6,
-                              ),
-                              Text(
-                                timeago.format(
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                        messageList[index].timestamp)),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black38,
-                                    fontSize: 13.0),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 8,
-                          ),
-                          Text(
-                            messageList[index].text,
-                            style: const TextStyle(fontSize: 16.0),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              );
+              return MessagesListView(messageList: messageList);
             } else {
               return const Text('No messages');
             }
@@ -112,32 +67,17 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         bottomNavigationBar: Padding(
           padding: MediaQuery.of(context).viewInsets,
-          child: Row(
-            children: [
-              Expanded(
-                child: BottomAppBar(
-                  child: TextField(
-                    controller: _controller,
-                    style: const TextStyle(fontSize: 16.0),
-                    decoration: const InputDecoration(
-                        floatingLabelBehavior: FloatingLabelBehavior.never,
-                        labelText: 'Message',
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 8.0, horizontal: 8.0)),
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  DatabaseService().sendMessage(_controller.text);
-                  _controller.text = '';
-                },
-                icon: Icon(Icons.send),
-              )
-            ],
-          ),
+          child: MessageFormView(controller: _controller),
         ));
+  }
+
+  @override
+  void initState() {
+    messageList.add(Message(
+      userId: 'Добро пожаловать!', 
+      text: 'Начните с Вашего первого сообщения...', 
+      timestamp: DateTime.now().millisecondsSinceEpoch));
+    super.initState();
   }
 
   @override
