@@ -56,9 +56,10 @@ class _MyHomePageState extends State<MyHomePage> {
         body: StreamBuilder(
           stream: DatabaseService().messages,
           builder: (context, snapshot) {
-            // List<Message> messageList = [];
             if (snapshot.hasData && snapshot.data != null) {
-              messageList = snapshot.data!;
+              if (snapshot.data!.isNotEmpty) {
+                messageList = snapshot.data!;
+              }
               return MessagesListView(messageList: messageList);
             } else {
               return const Text('No messages');
