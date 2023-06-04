@@ -14,7 +14,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  final databaseService = DatabaseService();
+  final DatabaseService databaseService = DatabaseService();
   databaseService.testData();
   runApp(const MyApp());
 }
@@ -44,8 +44,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController _controller = TextEditingController();
   List<Message> messageList = [];
+  final DatabaseService databaseService = DatabaseService();
 
   @override
   Widget build(BuildContext context) {
@@ -54,36 +54,24 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(widget.title),
         ),
         body: StreamBuilder(
-          stream: DatabaseService().messages,
+          stream: databaseService.messages,
           builder: (context, snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
-              if (snapshot.data!.isNotEmpty) {
+              if (snapshot.data!.isEmpty) {
+                messageList = [
+                  Message(
+                      userId: 'Добро пожаловать!',
+                      text: 'Начните с Вашего первого сообщения...',
+                      timestamp: DateTime.now().millisecondsSinceEpoch)];
+              } else {
                 messageList = snapshot.data!;
               }
               return MessagesListView(messageList: messageList);
             } else {
-              return const Text('No messages');
+              return const Text('Data is not available!');
             }
           },
         ),
-        bottomNavigationBar: Padding(
-          padding: MediaQuery.of(context).viewInsets,
-          child: MessageFormView(controller: _controller),
-        ));
-  }
-
-  @override
-  void initState() {
-    messageList.add(Message(
-      userId: 'Добро пожаловать!', 
-      text: 'Начните с Вашего первого сообщения...', 
-      timestamp: DateTime.now().millisecondsSinceEpoch));
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+        bottomNavigationBar: MessageFormView(databaseService: databaseService));
   }
 }
