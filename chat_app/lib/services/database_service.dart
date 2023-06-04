@@ -1,4 +1,4 @@
-import 'package:chat_app/models/Message.dart';
+import 'package:chat_app/models/message/message.dart';
 import 'package:chat_app/services/user_service.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -21,7 +21,7 @@ class DatabaseService {
         var child = e.snapshot.children;
         child.forEach((element) {
           var map = element.value as Map<String, dynamic>;
-          Message message = Message.fromMap(map);
+          Message message = Message.fromJson(map);
           messageList.add(message);
         });
         return messageList;
