@@ -67,6 +67,5 @@ class DatabaseService {
 
     final userRef = ref.push();
     await userRef.set(user.toJson());
-    // return userId;
   }
 }
