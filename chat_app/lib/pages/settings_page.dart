@@ -1,4 +1,3 @@
-// import 'dart:io';
 import 'dart:html';
 import 'dart:typed_data';
 
@@ -51,15 +50,10 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void pickImage() async {
-    // final ImagePicker picker = ImagePicker();
     final ImagePickerWeb picker = ImagePickerWeb();
 
-    // final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     final Uint8List? image = await ImagePickerWeb.getImageAsBytes();
-    // final File? image = await ImagePickerWeb.getImageAsFile();
     if (image != null) {
-      // print(image as Uint8List);
-      // print(imageB);
 
       Reference ref = FirebaseStorage.instance.ref().child("images").child('image.png');
       await ref.putData(image);
@@ -85,7 +79,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 : TextButton(onPressed: _edit, child: Text('Edit'))
           ],
         ),
-        // body: const Text('Settings'),
         body: Container(
           width: MediaQuery.of(context).size.width,
           padding: EdgeInsets.only(top: 32),
@@ -95,8 +88,6 @@ class _SettingsPageState extends State<SettingsPage> {
               GestureDetector(
                 onTap: pickImage,
                 child: const CircleAvatar(
-                  // child: Text('a'),
-                  // backgroundImage: AssetImage('assets/avatar.png'),
                   backgroundImage: AssetImage('avatar.png'),
                   backgroundColor: Colors.transparent,
                   radius: 32,
@@ -111,9 +102,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       'data',
                       style: TextStyle(fontSize: 24),
                     ),
-                    
-                    // _isAvatar ? Image.network(_avatarURL) : Text('No Avatar')
-                    // _isAvatar ? HtmlElementView(viewType: 'test') : Text('No Avatar')
                     
             ],
           ),
