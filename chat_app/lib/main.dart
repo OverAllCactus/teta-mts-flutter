@@ -33,7 +33,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // primarySwatch: Colors.blue,
         colorSchemeSeed: const Color(0xff6750a4),
         useMaterial3: true,
       ),
@@ -78,7 +77,6 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           },
         ),
-          // ChatsPage(),
         StreamBuilder(
           stream: databaseService.messages,
           builder: (context, snapshot) {
@@ -100,7 +98,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
           SettingsPage(),
         ] [currentPageIndex],
-        // bottomNavigationBar: MessageFormView(databaseService: databaseService));
         bottomNavigationBar: NavigationBar(
           onDestinationSelected: (int index) {
             setState(() {
@@ -118,7 +115,6 @@ class _MyHomePageState extends State<MyHomePage> {
               label: 'Chats',
             ),
             NavigationDestination(
-              // selectedIcon: Icon(Icons.settings), 
               icon: Icon(Icons.settings), 
               label: 'Settings',
             ),
