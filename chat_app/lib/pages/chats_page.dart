@@ -23,7 +23,6 @@ List<User> userList = [];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Chats')), 
-      // body: const Text('Chats')
       body: ListView(
         children: const <Widget>[          
           ListTile(
