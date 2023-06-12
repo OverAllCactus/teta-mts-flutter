@@ -11,9 +11,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'view/messagesList_view.dart';
 import 'firebase_options.dart';
 
-List<User> userList = [];
-List<Message> messageList = [];
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -63,15 +60,14 @@ class _MyHomePageState extends State<MyHomePage> {
           builder: (context, snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
               if (snapshot.data!.isEmpty) {
-                userList = [
+                return ContactsPage(userList: [
                   User(
                       id: 'test',
                       displayName: 'test name',
-                      photoUrl: '')];
+                      photoUrl: '')]);
               } else {
-                userList = snapshot.data!;
+                return ContactsPage(userList: snapshot.data!);
               }
-              return ContactsPage(userList: userList);
             } else {
               return const Text('Data is not available!');
             }
@@ -83,14 +79,14 @@ class _MyHomePageState extends State<MyHomePage> {
             if (snapshot.hasData && snapshot.data != null) {
               if (snapshot.data!.isEmpty) {
                 messageList = [
+                  return MessagesListView(messageList: [
                   Message(
                       userId: 'Добро пожаловать!',
                       text: 'Начните с Вашего первого сообщения...',
-                      timestamp: DateTime.now().millisecondsSinceEpoch)];
+                      timestamp: DateTime.now().millisecondsSinceEpoch)]);
               } else {
-                messageList = snapshot.data!;
+                return MessagesListView(messageList: snapshot.data!);
               }
-              return MessagesListView(messageList: messageList);
             } else {
               return const Text('Data is not available!');
             }
