@@ -11,6 +11,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'view/messagesList_view.dart';
 import 'firebase_options.dart';
 
+List<User> userList = [];
+List<Message> messageList = [];
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -49,8 +52,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<User> userList = [];
-  List<Message> messageList = [];
   final DatabaseService databaseService = DatabaseService();
   int currentPageIndex = 0;
 
