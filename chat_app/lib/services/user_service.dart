@@ -19,8 +19,6 @@ class UserService {
     String? userFromService = await getUser();
     if (userFromService == null) {
       final databaseService = DatabaseService();
-    // String? newUserId = await databaseService.createUser();
-      // setUser(newUserId);
     }
   }
 }
