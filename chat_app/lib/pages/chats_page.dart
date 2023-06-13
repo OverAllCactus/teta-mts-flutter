@@ -4,19 +4,13 @@ import 'package:flutter/material.dart';
 import '../services/database_service.dart';
 
 class ChatsPage extends StatefulWidget {
-  const ChatsPage({super.key, required this.databaseService});
-
-  final DatabaseService databaseService;
+  const ChatsPage({super.key});
 
   @override
-  State<ChatsPage> createState() => _ChatsPageState(databaseService: databaseService);
+  State<ChatsPage> createState() => _ChatsPageState();
 }
 
 class _ChatsPageState extends State<ChatsPage> {
-  _ChatsPageState({required this.databaseService});
-
-  final DatabaseService databaseService;
-List<User> userList = [];
 
   @override
   Widget build(BuildContext context) {
