@@ -9,13 +9,10 @@ class ContactsPage extends StatefulWidget {
   final List<User> userList;
 
   @override
-  State<ContactsPage> createState() => _ContactsPageState(userList: userList);
+  State<ContactsPage> createState() => _ContactsPageState();
 }
 
 class _ContactsPageState extends State<ContactsPage> {
-  _ContactsPageState({required this.userList});
-
-  final List<User> userList;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +22,7 @@ class _ContactsPageState extends State<ContactsPage> {
           padding: const EdgeInsets.all(16.0),
           child: ListView.builder(
             reverse: false,
-            itemCount: userList.length,
+            itemCount: widget.userList.length,
             itemBuilder: (context, index) {
               return Padding(
                 padding: const EdgeInsets.only(top: 16),
@@ -36,7 +33,7 @@ class _ContactsPageState extends State<ContactsPage> {
                       leading: CircleAvatar(
                         child: Text('a'),
                       ),
-                      title: Text(userList[index].displayName),
+                      title: Text(widget.userList[index].displayName),
                     ),
                   ],
                 ),
