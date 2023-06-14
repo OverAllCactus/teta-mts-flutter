@@ -14,11 +14,4 @@ class UserService {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     preferences.setString('userId', userId);
   }
-
-  Future checkUser() async {
-    String? userFromService = await getUser();
-    if (userFromService == null) {
-      final databaseService = DatabaseService();
-    }
-  }
 }
