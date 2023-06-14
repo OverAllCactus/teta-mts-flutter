@@ -92,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           },
         ),
-          SettingsPage(),
+          SettingsPage(databaseService: databaseService),
         ] [currentPageIndex],
         bottomNavigationBar: NavigationBar(
           onDestinationSelected: (int index) {
