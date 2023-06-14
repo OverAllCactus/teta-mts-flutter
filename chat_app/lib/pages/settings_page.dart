@@ -50,7 +50,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Settings'),
+          title: Text('Settings', style: GoogleFonts.oswald().copyWith(color: Colors.blue),),
           actions: [
             _isEdit
                 ? TextButton(onPressed: _done, child: Text('Done'))
