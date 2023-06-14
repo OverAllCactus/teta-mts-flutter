@@ -1,14 +1,11 @@
-import 'dart:html';
-import 'dart:typed_data';
-
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:chat_app/services/database_service.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image_picker_web/image_picker_web.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  const SettingsPage({super.key, required this.databaseService});
+
+  final DatabaseService databaseService;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -49,25 +46,6 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
-  void pickImage() async {
-    final ImagePickerWeb picker = ImagePickerWeb();
-
-    final Uint8List? image = await ImagePickerWeb.getImageAsBytes();
-    if (image != null) {
-
-      Reference ref = FirebaseStorage.instance.ref().child("images").child('image.png');
-      await ref.putData(image);
-      final downloadURL = await ref.getDownloadURL();
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('avatarURL', downloadURL);
-      print(downloadURL);
-      Image imageb = Image.network(downloadURL);
-      print(imageb.hashCode);
-    } else {
-      print("no image!");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,7 +64,7 @@ class _SettingsPageState extends State<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: pickImage,
+                onTap: widget.databaseService.pickImage,
                 child: const CircleAvatar(
                   backgroundImage: AssetImage('avatar.png'),
                   backgroundColor: Colors.transparent,
