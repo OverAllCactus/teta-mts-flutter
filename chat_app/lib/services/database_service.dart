@@ -1,6 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:chat_app/models/message/message.dart';
 import 'package:chat_app/services/user_service.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker_web/image_picker_web.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/user/user.dart';
@@ -67,5 +73,22 @@ class DatabaseService {
 
     final userRef = ref.push();
     await userRef.set(user.toJson());
+  }
+  
+  Future<void> pickImage() async {
+    final ImagePickerWeb picker = ImagePickerWeb();
+    final Uint8List? image = await ImagePickerWeb.getImageAsBytes();
+    if (image != null) {
+      Reference ref = FirebaseStorage.instance.ref().child("images").child('image.png');
+      await ref.putData(image);
+      final downloadURL = await ref.getDownloadURL();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('avatarURL', downloadURL);
+      print(downloadURL);
+      Image imageb = Image.network(downloadURL);
+      print(imageb.hashCode);
+    } else {
+      print("no image!");
+    }
   }
 }
