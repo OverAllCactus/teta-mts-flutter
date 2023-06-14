@@ -17,7 +17,7 @@ class _ContactsPageState extends State<ContactsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Contacts')),
+        appBar: AppBar(title: Text('Contacts', style: GoogleFonts.oswald().copyWith(color: Colors.blue),)),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView.builder(
