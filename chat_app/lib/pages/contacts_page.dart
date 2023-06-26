@@ -1,4 +1,8 @@
+import 'package:chat_app/main.dart';
+import 'package:chat_app/view/contact_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../models/user/user.dart';
 import '../services/database_service.dart';
@@ -13,32 +17,27 @@ class ContactsPage extends StatefulWidget {
 }
 
 class _ContactsPageState extends State<ContactsPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Contacts')),
+        appBar: AppBar(
+            title: Text(
+          'Contacts',
+          style: GoogleFonts.oswald().copyWith(color: Colors.blue),
+        )),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: ListView.builder(
-            reverse: false,
-            itemCount: widget.userList.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
-                      leading: CircleAvatar(
-                        child: Text('a'),
-                      ),
-                      title: Text(widget.userList[index].displayName),
-                    ),
-                  ],
-                ),
+          child: Consumer(
+            builder: ((context, ref, child) {
+              final List<User> users = ref.watch(userProvider);
+              return ListView.builder(
+                reverse: false,
+                itemCount: widget.userList.length,
+                itemBuilder: (context, index) {
+                  return ContactView(user: widget.userList[index]);
+                },
               );
-            },
+            }),
           ),
         ));
   }
