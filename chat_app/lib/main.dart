@@ -1,4 +1,8 @@
 import 'package:chat_app/models/message/message.dart';
+import 'package:chat_app/models/user/user.dart';
+import 'package:chat_app/pages/chats_page.dart';
+import 'package:chat_app/pages/contacts_page.dart';
+import 'package:chat_app/pages/settings_page.dart';
 import 'package:chat_app/services/database_service.dart';
 import 'package:chat_app/services/user_service.dart';
 import 'package:chat_app/view/messageForm_view.dart';
@@ -8,13 +12,12 @@ import 'view/messagesList_view.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  final userService = UserService();
-  userService.checkUser();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   final DatabaseService databaseService = DatabaseService();
+  databaseService.createUser();
   databaseService.testData();
   runApp(const MyApp());
 }
@@ -27,7 +30,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorSchemeSeed: const Color(0xff6750a4),
+        useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Chat'),
     );
@@ -44,34 +48,74 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Message> messageList = [];
   final DatabaseService databaseService = DatabaseService();
+  int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: StreamBuilder(
-          stream: databaseService.messages,
+        body: <Widget>[
+          StreamBuilder(
+          stream: databaseService.users,
           builder: (context, snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
               if (snapshot.data!.isEmpty) {
-                messageList = [
-                  Message(
-                      userId: 'Добро пожаловать!',
-                      text: 'Начните с Вашего первого сообщения...',
-                      timestamp: DateTime.now().millisecondsSinceEpoch)];
+                return ContactsPage(userList: [
+                  User(
+                      id: 'test',
+                      displayName: 'test name',
+                      photoUrl: '')]);
               } else {
-                messageList = snapshot.data!;
+                return ContactsPage(userList: snapshot.data!);
               }
-              return MessagesListView(messageList: messageList);
             } else {
               return const Text('Data is not available!');
             }
           },
         ),
-        bottomNavigationBar: MessageFormView(databaseService: databaseService));
+        StreamBuilder(
+          stream: databaseService.messages,
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              if (snapshot.data!.isEmpty) {
+                messageList = [
+                  return MessagesListView(messageList: [
+                  Message(
+                      userId: 'Добро пожаловать!',
+                      text: 'Начните с Вашего первого сообщения...',
+                      timestamp: DateTime.now().millisecondsSinceEpoch)]);
+              } else {
+                return MessagesListView(messageList: snapshot.data!);
+              }
+            } else {
+              return const Text('Data is not available!');
+            }
+          },
+        ),
+          SettingsPage(databaseService: databaseService),
+        ] [currentPageIndex],
+        bottomNavigationBar: NavigationBar(
+          onDestinationSelected: (int index) {
+            setState(() {
+              currentPageIndex = index;
+            });
+          },
+          selectedIndex: currentPageIndex,
+          destinations: const <Widget>[
+            NavigationDestination(
+              icon: Icon(Icons.people_alt), 
+              label: 'Contacts',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.chat), 
+              label: 'Chats',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.settings), 
+              label: 'Settings',
+            ),
+          ],
+        ),
+    );
   }
 }

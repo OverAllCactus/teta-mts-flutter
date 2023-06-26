@@ -1,9 +1,19 @@
+import 'dart:typed_data';
+
 import 'package:chat_app/models/message/message.dart';
 import 'package:chat_app/services/user_service.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker_web/image_picker_web.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+
+import '../models/user/user.dart';
 
 class DatabaseService {
   final _dbRef = FirebaseDatabase.instance.ref('messages');
+  final _userRef = FirebaseDatabase.instance.ref('users');
 
   Future<void> testData() async {
     final ref = FirebaseDatabase.instance.ref();
@@ -38,5 +48,47 @@ class DatabaseService {
 
     final messageRef = ref.push();
     await messageRef.set(message.toJson());
+  }
+
+  Stream<List<User>> get users => _userRef.onValue.map((e) {
+        List<User> userList = [];
+        var child = e.snapshot.children;
+        child.forEach((element) {
+          var map = element.value as Map<String, dynamic>;
+          User user = User.fromJson(map);
+          userList.add(user);
+        });
+        print(userList.length);
+        return userList;
+      });
+
+  Future<void> createUser() async {
+    const uuid = Uuid();
+    String userId = uuid.v4();
+
+    DatabaseReference ref = FirebaseDatabase.instance.ref("users");
+    final String displayName = 'Default Name';
+    final user =
+        User(id: userId ?? '567567', displayName: displayName, photoUrl: '');
+
+    final userRef = ref.push();
+    await userRef.set(user.toJson());
+  }
+  
+  Future<void> pickImage() async {
+    final ImagePickerWeb picker = ImagePickerWeb();
+    final Uint8List? image = await ImagePickerWeb.getImageAsBytes();
+    if (image != null) {
+      Reference ref = FirebaseStorage.instance.ref().child("images").child('image.png');
+      await ref.putData(image);
+      final downloadURL = await ref.getDownloadURL();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('avatarURL', downloadURL);
+      print(downloadURL);
+      Image imageb = Image.network(downloadURL);
+      print(imageb.hashCode);
+    } else {
+      print("no image!");
+    }
   }
 }
