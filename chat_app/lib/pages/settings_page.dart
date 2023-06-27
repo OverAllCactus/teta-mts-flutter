@@ -1,11 +1,12 @@
+import 'package:chat_app/pages/credits_page.dart';
 import 'package:chat_app/services/database_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key, required this.databaseService});
-
-  final DatabaseService databaseService;
+  const SettingsPage({super.key});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -16,6 +17,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _isAvatar = false;
   String _avatarURL = '';
   Image image = Image.asset('avatar.png');
+  final getIt = GetIt.instance;
 
   @override
   void initState() {
@@ -50,7 +52,10 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Settings', style: GoogleFonts.oswald().copyWith(color: Colors.blue),),
+          title: Text(
+            'Settings',
+            style: GoogleFonts.oswald().copyWith(color: Colors.blue),
+          ),
           actions: [
             _isEdit
                 ? TextButton(onPressed: _done, child: Text('Done'))
@@ -64,7 +69,7 @@ class _SettingsPageState extends State<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: widget.databaseService.pickImage,
+                onTap: getIt<DatabaseService>().pickImage,
                 child: const CircleAvatar(
                   backgroundImage: AssetImage('avatar.png'),
                   backgroundColor: Colors.transparent,
@@ -80,7 +85,16 @@ class _SettingsPageState extends State<SettingsPage> {
                       'data',
                       style: TextStyle(fontSize: 24),
                     ),
-                    
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => CreditsPage()));
+                },
+                child: const Text(
+                  'Powered on Flutter',
+                  style: TextStyle(fontSize: 14),
+                ),
+              ),
             ],
           ),
         ));

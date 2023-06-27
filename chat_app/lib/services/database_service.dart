@@ -14,15 +14,19 @@ import '../models/user/user.dart';
 class DatabaseService {
   final _dbRef = FirebaseDatabase.instance.ref('messages');
   final _userRef = FirebaseDatabase.instance.ref('users');
-
+  final _chatsmockRef = FirebaseDatabase.instance.ref('chatsmock');
   Future<void> testData() async {
-    final ref = FirebaseDatabase.instance.ref();
-    final snapshot = await ref.child('message').get();
-    if (snapshot.exists) {
-      print('test value:');
-      print(snapshot.value);
-    } else {
-      print('No data');
+    try {
+      final ref = FirebaseDatabase.instance.ref();
+      final snapshot = await ref.child('message').get();
+      if (snapshot.exists) {
+        print('test value:');
+        print(snapshot.value);
+      } else {
+        print('No data');
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -62,6 +66,18 @@ class DatabaseService {
         return userList;
       });
 
+  Stream<List<User>> get chatsmock => _chatsmockRef.onValue.map((e) {
+        List<User> userList = [];
+        var child = e.snapshot.children;
+        child.forEach((element) {
+          var map = element.value as Map<String, dynamic>;
+          User user = User.fromJson(map);
+          userList.add(user);
+        });
+        print(userList.length);
+        return userList;
+      });
+
   Future<void> createUser() async {
     const uuid = Uuid();
     String userId = uuid.v4();
@@ -74,12 +90,13 @@ class DatabaseService {
     final userRef = ref.push();
     await userRef.set(user.toJson());
   }
-  
+
   Future<void> pickImage() async {
     final ImagePickerWeb picker = ImagePickerWeb();
     final Uint8List? image = await ImagePickerWeb.getImageAsBytes();
     if (image != null) {
-      Reference ref = FirebaseStorage.instance.ref().child("images").child('image.png');
+      Reference ref =
+          FirebaseStorage.instance.ref().child("images").child('image.png');
       await ref.putData(image);
       final downloadURL = await ref.getDownloadURL();
       final SharedPreferences prefs = await SharedPreferences.getInstance();

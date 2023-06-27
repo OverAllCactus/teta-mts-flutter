@@ -1,24 +1,27 @@
 import 'package:chat_app/models/message/message.dart';
 import 'package:chat_app/models/user/user.dart';
-import 'package:chat_app/pages/chats_page.dart';
-import 'package:chat_app/pages/contacts_page.dart';
+import 'package:chat_app/pages/chats-list_page.dart';
+import 'package:chat_app/pages/chat_page.dart';
+import 'package:chat_app/pages/contacts-list_page.dart';
 import 'package:chat_app/pages/settings_page.dart';
 import 'package:chat_app/services/database_service.dart';
 import 'package:chat_app/services/user_service.dart';
 import 'package:chat_app/view/messageForm_view.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'view/messagesList_view.dart';
+import 'package:get_it/get_it.dart';
 import 'firebase_options.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  final DatabaseService databaseService = DatabaseService();
-  databaseService.createUser();
-  databaseService.testData();
+
+  final getIt = GetIt.instance;
+  getIt.registerSingleton<DatabaseService>(DatabaseService());
+  getIt<DatabaseService>().testData();
   runApp(const MyApp());
 }
 
@@ -48,74 +51,38 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final DatabaseService databaseService = DatabaseService();
-  int currentPageIndex = 0;
+  int currentPageIndex = 2;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: <Widget>[
-          StreamBuilder(
-          stream: databaseService.users,
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              if (snapshot.data!.isEmpty) {
-                return ContactsPage(userList: [
-                  User(
-                      id: 'test',
-                      displayName: 'test name',
-                      photoUrl: '')]);
-              } else {
-                return ContactsPage(userList: snapshot.data!);
-              }
-            } else {
-              return const Text('Data is not available!');
-            }
-          },
-        ),
-        StreamBuilder(
-          stream: databaseService.messages,
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              if (snapshot.data!.isEmpty) {
-                messageList = [
-                  return MessagesListView(messageList: [
-                  Message(
-                      userId: 'Добро пожаловать!',
-                      text: 'Начните с Вашего первого сообщения...',
-                      timestamp: DateTime.now().millisecondsSinceEpoch)]);
-              } else {
-                return MessagesListView(messageList: snapshot.data!);
-              }
-            } else {
-              return const Text('Data is not available!');
-            }
-          },
-        ),
-          SettingsPage(databaseService: databaseService),
-        ] [currentPageIndex],
-        bottomNavigationBar: NavigationBar(
-          onDestinationSelected: (int index) {
-            setState(() {
-              currentPageIndex = index;
-            });
-          },
-          selectedIndex: currentPageIndex,
-          destinations: const <Widget>[
-            NavigationDestination(
-              icon: Icon(Icons.people_alt), 
-              label: 'Contacts',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.chat), 
-              label: 'Chats',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.settings), 
-              label: 'Settings',
-            ),
-          ],
-        ),
+      body: <Widget>[
+        ContactsListPage(),
+        ChatsListPage(),
+        SettingsPage(),
+      ][currentPageIndex],
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+        selectedIndex: currentPageIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
+            icon: Icon(Icons.people_alt),
+            label: 'Contacts',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.chat),
+            label: 'Chats',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
     );
   }
 }

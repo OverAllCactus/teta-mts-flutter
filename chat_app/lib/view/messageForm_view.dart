@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import '../services/database_service.dart';
 
 class MessageFormView extends StatefulWidget {
-  const MessageFormView({super.key, required this.databaseService});
+  const MessageFormView({super.key});
 
-  final DatabaseService databaseService;
   @override
   State<MessageFormView> createState() =>
-      _MessageFormState(databaseService: databaseService);
+      _MessageFormState();
 }
 
 class _MessageFormState extends State<MessageFormView> {
-  _MessageFormState({required this.databaseService});
 
   final TextEditingController _controller = TextEditingController();
-  final DatabaseService databaseService;
+  final getIt = GetIt.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +38,7 @@ class _MessageFormState extends State<MessageFormView> {
             ),
             IconButton(
               onPressed: () {
-                databaseService.sendMessage(_controller.text);
+                getIt<DatabaseService>().sendMessage(_controller.text);
                 _controller.text = '';
               },
               icon: Icon(Icons.send),
