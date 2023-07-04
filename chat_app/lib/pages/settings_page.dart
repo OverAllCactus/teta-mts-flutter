@@ -62,7 +62,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 : TextButton(onPressed: _edit, child: Text('Edit'))
           ],
         ),
-        // body: const Text('Settings'),
         body: Container(
           width: MediaQuery.of(context).size.width,
           padding: EdgeInsets.only(top: 32),
@@ -73,8 +72,6 @@ class _SettingsPageState extends State<SettingsPage> {
               GestureDetector(
                 onTap: getIt<DatabaseService>().pickImage,
                 child: const CircleAvatar(
-                  // child: Text('a'),
-                  // backgroundImage: AssetImage('assets/avatar.png'),
                   backgroundImage: AssetImage('avatar.png'),
                   backgroundColor: Colors.transparent,
                   radius: 32,
@@ -89,9 +86,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       'data',
                       style: TextStyle(fontSize: 24),
                     ),
-
-              // _isAvatar ? Image.network(_avatarURL) : Text('No Avatar')
-              // _isAvatar ? HtmlElementView(viewType: 'test') : Text('No Avatar')
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(
