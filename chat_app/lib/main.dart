@@ -1,23 +1,19 @@
-import 'package:chat_app/models/message/message.dart';
-import 'package:chat_app/models/user/user.dart';
-import 'package:chat_app/pages/chats-list_page.dart';
-import 'package:chat_app/pages/chat_page.dart';
-import 'package:chat_app/pages/contacts-list_page.dart';
-import 'package:chat_app/pages/settings_page.dart';
+import 'package:chat_app/pages/home_page.dart';
 import 'package:chat_app/services/database_service.dart';
-import 'package:chat_app/services/user_service.dart';
-import 'package:chat_app/view/messageForm_view.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get_it/get_it.dart';
 import 'firebase_options.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide PhoneAuthProvider;
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseUIAuth.configureProviders([PhoneAuthProvider()]);
 
   final getIt = GetIt.instance;
   getIt.registerSingleton<DatabaseService>(DatabaseService());
@@ -30,59 +26,46 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final providers = [PhoneAuthProvider()];
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         colorSchemeSeed: const Color(0xff6750a4),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Chat'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int currentPageIndex = 2;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: <Widget>[
-        ContactsListPage(),
-        ChatsListPage(),
-        SettingsPage(),
-      ][currentPageIndex],
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
+      initialRoute:
+          FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
+      routes: {
+        '/sign-in': (context) {
+          return SignInScreen(
+            providers: providers,
+            actions: [
+              VerifyPhoneAction((context, _) {
+                Navigator.pushReplacementNamed(context, '/phone');
+              }),
+            ],
+          );
         },
-        selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.people_alt),
-            label: 'Contacts',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.chat),
-            label: 'Chats',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-      ),
+        '/home': (context) {
+          return const HomePage(title: 'title');
+        },
+        '/phone': (context) => PhoneInputScreen(
+              actions: [
+                SMSCodeRequestedAction((context, action, flowKey, phoneNumber) {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => SMSCodeInputScreen(
+                            flowKey: flowKey,
+                            actions: [
+                              AuthStateChangeAction<SignedIn>((context, state) {
+                                Navigator.of(context)
+                                    .pushReplacementNamed('/home');
+                              })
+                            ],
+                          )));
+                }),
+              ],
+            ),
+      },
     );
   }
 }
