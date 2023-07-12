@@ -6,11 +6,11 @@ part 'message.g.dart';
 @freezed
 class Message with _$Message {
   const Message._();
-  const factory Message({
-    required String userId,
-    required String text,
-    required int timestamp
-  }) = _Message;
+  const factory Message(
+      {required String userId,
+      required String text,
+      required int timestamp}) = _Message;
 
-  factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
+  factory Message.fromJson(Map<String, dynamic> json) =>
+      _$MessageFromJson(json);
 }

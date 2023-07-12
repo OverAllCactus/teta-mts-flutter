@@ -19,7 +19,7 @@ class _CreditsPageState extends State<CreditsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Column(children: [
+      body: Column(mainAxisSize: MainAxisSize.min, children: [
         Expanded(
             child: WebViewWidget(
           controller: _controller,

@@ -17,7 +17,7 @@ class ChatsListPage extends StatefulWidget {
 
 class _ChatsListPageState extends State<ChatsListPage> {
   final getIt = GetIt.instance;
-  
+
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: ((context, ref, child) {

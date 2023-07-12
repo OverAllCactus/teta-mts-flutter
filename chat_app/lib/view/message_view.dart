@@ -14,9 +14,11 @@ class MessageView extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisSize: MainAxisSize.max,
             children: [
               Text(
                 message.userId,

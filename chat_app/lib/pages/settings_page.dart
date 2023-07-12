@@ -66,6 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
           width: MediaQuery.of(context).size.width,
           padding: EdgeInsets.only(top: 32),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               GestureDetector(

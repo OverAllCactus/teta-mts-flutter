@@ -3,7 +3,6 @@ import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
-  
   Future<String?> getUser() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String? value = preferences.getString('userId');

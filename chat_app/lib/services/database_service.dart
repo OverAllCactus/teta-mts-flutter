@@ -42,16 +42,18 @@ class DatabaseService {
       });
 
   Future<void> sendMessage(text) async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref("messages");
-    final userService = UserService();
-    String? userFromService = await userService.getUser();
-    final message = Message(
-        userId: userFromService ?? '567567',
-        text: text,
-        timestamp: DateTime.now().millisecondsSinceEpoch);
+    if (text != '') {
+      DatabaseReference ref = FirebaseDatabase.instance.ref("messages");
+      final userService = UserService();
+      String? userFromService = await userService.getUser();
+      final message = Message(
+          userId: userFromService ?? '567567',
+          text: text,
+          timestamp: DateTime.now().millisecondsSinceEpoch);
 
-    final messageRef = ref.push();
-    await messageRef.set(message.toJson());
+      final messageRef = ref.push();
+      await messageRef.set(message.toJson());
+    }
   }
 
   Stream<List<User>> get users => _userRef.onValue.map((e) {
