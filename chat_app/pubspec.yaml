@@ -50,7 +50,11 @@ dependencies:
   google_fonts: ^4.0.0
   get_it: ^7.6.0
   webview_flutter: ^4.2.2
+  firebase_ui_auth: ^1.5.0
 
+dependency_overrides:
+  intl: 0.17.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
