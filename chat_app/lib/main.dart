@@ -57,6 +57,7 @@ class MyApp extends StatelessWidget {
                             flowKey: flowKey,
                             actions: [
                               AuthStateChangeAction<SignedIn>((context, state) {
+                                
                                 Navigator.of(context)
                                     .pushReplacementNamed('/home');
                               })
