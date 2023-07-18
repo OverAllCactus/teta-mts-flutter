@@ -1,5 +1,7 @@
 import 'package:chat_app/pages/settings_page.dart';
+import 'package:chat_app/services/database_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import 'chats-list_page.dart';
 import 'contacts-list_page.dart';
@@ -14,7 +16,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int currentPageIndex = 2;
+  final getIt = GetIt.instance;
+  int currentPageIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    getIt<DatabaseService>().updateUser();
+  }
 
   @override
   Widget build(BuildContext context) {
