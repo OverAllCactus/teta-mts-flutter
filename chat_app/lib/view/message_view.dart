@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:string_to_hex/string_to_hex.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../models/message/message.dart';
@@ -24,7 +23,7 @@ class MessageView extends StatelessWidget {
                 message.userId,
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Color(StringToHex.toColor(message.userId))),
+                    color: Colors.blueAccent),
               ),
               const SizedBox(
                 width: 6,

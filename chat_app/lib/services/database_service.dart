@@ -7,7 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker_web/image_picker_web.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 
 import '../models/user/user.dart';
 
@@ -46,6 +46,7 @@ class DatabaseService {
       DatabaseReference ref = FirebaseDatabase.instance.ref("messages");
       final userService = UserService();
       String? userFromService = await userService.getUser();
+      print(userFromService);
       final message = Message(
           userId: userFromService ?? '567567',
           text: text,
@@ -53,6 +54,18 @@ class DatabaseService {
 
       final messageRef = ref.push();
       await messageRef.set(message.toJson());
+    }
+  }
+
+  Future updateUser() async {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null) {
+      final id = firebaseUser.uid;
+      final displayName = firebaseUser.phoneNumber ?? 'default name';
+      final photoUrl = firebaseUser.photoURL ?? '';
+      final user = User(id: id, displayName: displayName, photoUrl: photoUrl);
+      final userService = UserService();
+      await userService.setUser(id);
     }
   }
 
@@ -79,19 +92,6 @@ class DatabaseService {
         print(userList.length);
         return userList;
       });
-
-  Future<void> createUser() async {
-    const uuid = Uuid();
-    String userId = uuid.v4();
-
-    DatabaseReference ref = FirebaseDatabase.instance.ref("users");
-    final String displayName = 'Default Name';
-    final user =
-        User(id: userId ?? '567567', displayName: displayName, photoUrl: '');
-
-    final userRef = ref.push();
-    await userRef.set(user.toJson());
-  }
 
   Future<void> pickImage() async {
     final ImagePickerWeb picker = ImagePickerWeb();

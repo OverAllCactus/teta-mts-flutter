@@ -1,5 +1,3 @@
-import 'package:chat_app/services/database_service.dart';
-import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
