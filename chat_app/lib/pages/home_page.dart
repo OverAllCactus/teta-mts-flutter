@@ -1,3 +1,4 @@
+import 'package:chat_app/pages/map_page.dart';
 import 'package:chat_app/pages/settings_page.dart';
 import 'package:chat_app/services/database_service.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,7 @@ class _HomePageState extends State<HomePage> {
         ContactsListPage(),
         ChatsListPage(),
         SettingsPage(),
+        MapPage()
       ][currentPageIndex],
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -53,6 +55,11 @@ class _HomePageState extends State<HomePage> {
             // selectedIcon: Icon(Icons.settings),
             icon: Icon(Icons.settings),
             label: 'Settings',
+          ),
+          NavigationDestination(
+            // selectedIcon: Icon(Icons.settings),
+            icon: Icon(Icons.map),
+            label: 'Map',
           ),
         ],
       ),
