@@ -1,12 +1,7 @@
-import 'dart:typed_data';
-
 import 'package:chat_app/models/message/message.dart';
 import 'package:chat_app/services/user_service.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
-import 'package:image_picker_web/image_picker_web.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 
 import '../models/user/user.dart';
@@ -15,6 +10,7 @@ class DatabaseService {
   final _dbRef = FirebaseDatabase.instance.ref('messages');
   final _userRef = FirebaseDatabase.instance.ref('users');
   final _chatsmockRef = FirebaseDatabase.instance.ref('chatsmock');
+
   Future<void> testData() async {
     try {
       final ref = FirebaseDatabase.instance.ref();
@@ -41,14 +37,14 @@ class DatabaseService {
         return messageList;
       });
 
-  Future<void> sendMessage(text) async {
+  Future<void> sendMessage(id, text) async {
     if (text != '') {
       DatabaseReference ref = FirebaseDatabase.instance.ref("messages");
       final userService = UserService();
       String? userFromService = await userService.getUser();
       print(userFromService);
       final message = Message(
-          userId: userFromService ?? '567567',
+          userId: id ?? '567567',
           text: text,
           timestamp: DateTime.now().millisecondsSinceEpoch);
 
@@ -69,6 +65,17 @@ class DatabaseService {
     }
   }
 
+  Future<bool> checkConnection() async {
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.wifi) {
+      print('I am connected to a wifi network.');
+      return true;
+    } else {
+      print('no wifi connection');
+      return false;
+    }
+  }
+
   Stream<List<User>> get users => _userRef.onValue.map((e) {
         List<User> userList = [];
         var child = e.snapshot.children;
@@ -77,7 +84,6 @@ class DatabaseService {
           User user = User.fromJson(map);
           userList.add(user);
         });
-        print(userList.length);
         return userList;
       });
 
@@ -92,22 +98,4 @@ class DatabaseService {
         print(userList.length);
         return userList;
       });
-
-  Future<void> pickImage() async {
-    final ImagePickerWeb picker = ImagePickerWeb();
-    final Uint8List? image = await ImagePickerWeb.getImageAsBytes();
-    if (image != null) {
-      Reference ref =
-          FirebaseStorage.instance.ref().child("images").child('image.png');
-      await ref.putData(image);
-      final downloadURL = await ref.getDownloadURL();
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('avatarURL', downloadURL);
-      print(downloadURL);
-      Image imageb = Image.network(downloadURL);
-      print(imageb.hashCode);
-    } else {
-      print("no image!");
-    }
-  }
 }
