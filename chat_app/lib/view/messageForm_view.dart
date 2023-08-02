@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 
+import '../main.dart';
 import '../services/database_service.dart';
 
-class MessageFormView extends StatefulWidget {
+class MessageFormView extends ConsumerStatefulWidget {
   const MessageFormView({super.key});
 
   @override
-  State<MessageFormView> createState() => _MessageFormState();
+  ConsumerState<MessageFormView> createState() => _MessageFormState();
 }
 
-class _MessageFormState extends State<MessageFormView>
+class _MessageFormState extends ConsumerState<MessageFormView>
     with SingleTickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final getIt = GetIt.instance;
@@ -56,7 +58,8 @@ class _MessageFormState extends State<MessageFormView>
                 builder: (_, __) {
                   return IconButton(
                     onPressed: () {
-                      getIt<DatabaseService>().sendMessage(_controller.text);
+                      getIt<DatabaseService>().sendMessage(
+                          ref.read(userProvider).id, _controller.text);
                       _controller.text = '';
                       _animationController.forward();
                     },
