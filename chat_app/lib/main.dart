@@ -1,24 +1,32 @@
+import 'package:chat_app/data/repository/user_repository.dart';
+import 'package:chat_app/models/user/db_user.dart';
 import 'package:chat_app/pages/home_page.dart';
 import 'package:chat_app/services/database_service.dart';
+import 'package:chat_app/services/isar_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'firebase_options.dart';
-import 'package:firebase_auth/firebase_auth.dart' hide PhoneAuthProvider;
+import 'package:firebase_auth/firebase_auth.dart' hide User, PhoneAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+
+import 'models/user/user.dart';
+
+final userProvider = StateProvider<User>(
+    (ref) => User(id: 'id', displayName: 'displayName', photoUrl: 'photoUrl'));
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   FirebaseUIAuth.configureProviders([PhoneAuthProvider()]);
 
   final getIt = GetIt.instance;
   getIt.registerSingleton<DatabaseService>(DatabaseService());
   getIt<DatabaseService>().testData();
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -57,7 +65,6 @@ class MyApp extends StatelessWidget {
                             flowKey: flowKey,
                             actions: [
                               AuthStateChangeAction<SignedIn>((context, state) {
-                                
                                 Navigator.of(context)
                                     .pushReplacementNamed('/home');
                               })
