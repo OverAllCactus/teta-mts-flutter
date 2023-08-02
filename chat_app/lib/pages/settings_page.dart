@@ -1,21 +1,19 @@
-import 'package:chat_app/pages/credits_page.dart';
-import 'package:chat_app/services/database_service.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:chat_app/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _isEdit = false;
   bool _isAvatar = false;
   String _avatarURL = '';
@@ -51,10 +49,11 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
-Future<void> _signOut() async {
-  await FirebaseAuth.instance.signOut();
-  Navigator.pushNamed(context, '/sign-in');
-}
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushNamed(context, '/sign-in');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,7 +76,6 @@ Future<void> _signOut() async {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: getIt<DatabaseService>().pickImage,
                 child: const CircleAvatar(
                   backgroundImage: AssetImage('avatar.png'),
                   backgroundColor: Colors.transparent,
@@ -89,8 +87,8 @@ Future<void> _signOut() async {
                       padding: const EdgeInsets.symmetric(horizontal: 64),
                       child: TextField(),
                     )
-                  : const Text(
-                      'data',
+                  : Text(
+                      ref.watch(userProvider).displayName,
                       style: TextStyle(fontSize: 24),
                     ),
               GestureDetector(
