@@ -10,8 +10,15 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 
 import 'models/user/user.dart';
 
+final DatabaseService databaseService = DatabaseService();
 final userProvider = StateProvider<User>(
-    (ref) => User(id: 'id', displayName: 'displayName', photoUrl: 'photoUrl'));
+    (ref) => const User(id: 'id', displayName: 'displayName', photoUrl: 'photoUrl'));
+final messagesProvider = StateProvider.autoDispose<Stream<List<Message>>>((ref) {
+  return databaseService.messages;
+});
+final contactsProvider = StateProvider.autoDispose<Stream<List<User>>>((ref) {
+  return databaseService.users;
+});
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
