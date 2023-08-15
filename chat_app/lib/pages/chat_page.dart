@@ -1,22 +1,20 @@
+import 'package:chat_app/main.dart';
 import 'package:chat_app/view/message_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
-import 'package:string_to_hex/string_to_hex.dart';
-import 'package:timeago/timeago.dart' as timeago;
-
-import '../models/message/message.dart';
 import '../services/database_service.dart';
 import '../view/messageForm_view.dart';
 import '../view/shimmer_view.dart';
 
-class ChatPage extends StatefulWidget {
+class ChatPage extends ConsumerStatefulWidget {
   const ChatPage({super.key});
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  ConsumerState<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends ConsumerState<ChatPage> {
   bool isLoading = false;
   final getIt = GetIt.instance;
 
@@ -30,7 +28,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Chat Name'),
+          title: const Text('Chat Name'),
         ),
         body: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -38,11 +36,11 @@ class _ChatPageState extends State<ChatPage> {
               Align(
                   alignment: Alignment.bottomLeft,
                   child: AnimatedSwitcher(
-                      duration: Duration(seconds: 1),
+                      duration: const Duration(seconds: 1),
                       child: isLoading
-                          ? ShimmerView()
+                          ? const ShimmerView()
                           : StreamBuilder(
-                              stream: getIt<DatabaseService>().messages,
+                              stream: ref.watch(messagesProvider),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   return Padding(
@@ -57,15 +55,15 @@ class _ChatPageState extends State<ChatPage> {
                                     ),
                                   );
                                 } else {
-                                  return ShimmerView();
+                                  return const ShimmerView();
                                 }
                               },
                             ))),
             ])),
         floatingActionButton: FloatingActionButton(
-          child: Text('Start'),
+          child: const Text('Start'),
           onPressed: () => onChangeAnimation(),
         ),
-        bottomNavigationBar: MessageFormView());
+        bottomNavigationBar: const MessageFormView());
   }
 }
