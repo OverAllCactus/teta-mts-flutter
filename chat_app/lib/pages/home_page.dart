@@ -28,6 +28,10 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      print("onMessageOpenedApp");
+      Navigator.of(context).push(_createRoute());
+    });
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
       final id = firebaseUser.uid;
@@ -49,10 +53,6 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      print("onMessageOpenedApp");
-      Navigator.of(context).push(_createRoute());
-    });
     return Scaffold(
       body: <Widget>[
         const ContactsListPage(),
