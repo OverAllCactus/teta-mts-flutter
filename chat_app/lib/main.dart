@@ -1,19 +1,22 @@
+import 'package:chat_app/pages/chat_page.dart';
 import 'package:chat_app/pages/home_page.dart';
 import 'package:chat_app/services/database_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'firebase_options.dart';
-import 'package:firebase_auth/firebase_auth.dart' hide User, PhoneAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 
+import 'models/message/message.dart';
 import 'models/user/user.dart';
 
 final DatabaseService databaseService = DatabaseService();
-final userProvider = StateProvider<User>(
-    (ref) => const User(id: 'id', displayName: 'displayName', photoUrl: 'photoUrl'));
-final messagesProvider = StateProvider.autoDispose<Stream<List<Message>>>((ref) {
+final userProvider = StateProvider<User>((ref) =>
+    const User(id: 'id', displayName: 'displayName', photoUrl: 'photoUrl'));
+final messagesProvider =
+    StateProvider.autoDispose<Stream<List<Message>>>((ref) {
   return databaseService.messages;
 });
 final contactsProvider = StateProvider.autoDispose<Stream<List<User>>>((ref) {
@@ -25,11 +28,19 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+  NotificationSettings notificationSettings = await firebaseMessaging
+      .requestPermission(alert: true, badge: true, sound: true);
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+  print(fcmToken);
+
   FirebaseUIAuth.configureProviders([PhoneAuthProvider()]);
 
   final getIt = GetIt.instance;
   getIt.registerSingleton<DatabaseService>(DatabaseService());
   getIt<DatabaseService>().testData();
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -46,7 +57,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       initialRoute:
-          FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
+          '/home',
       routes: {
         '/sign-in': (context) {
           return SignInScreen(
