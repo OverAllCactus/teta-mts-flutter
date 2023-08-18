@@ -1,12 +1,13 @@
 import 'package:chat_app/main.dart';
 import 'package:chat_app/pages/map_page.dart';
 import 'package:chat_app/pages/settings_page.dart';
-import 'package:chat_app/services/database_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/user/user.dart';
+import 'chat_page.dart';
 import 'chats-list_page.dart';
 import 'contacts-list_page.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
@@ -38,7 +39,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       });
     } else {
       Future(() {
-        ref.read(userProvider.notifier).update((state) => User(
+        ref.read(userProvider.notifier).update((state) => const User(
             id: 'mock_id',
             displayName: 'mock_displayName',
             photoUrl: 'mock_photoUrl'));
@@ -48,12 +49,16 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      print("onMessageOpenedApp");
+      Navigator.of(context).push(_createRoute());
+    });
     return Scaffold(
       body: <Widget>[
-        ContactsListPage(),
-        ChatsListPage(),
-        SettingsPage(),
-        MapPage()
+        const ContactsListPage(),
+        const ChatsListPage(),
+        const SettingsPage(),
+        const MapPage()
       ][currentPageIndex],
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -81,6 +86,25 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Route _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => const ChatPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1, 0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
     );
   }
 }
