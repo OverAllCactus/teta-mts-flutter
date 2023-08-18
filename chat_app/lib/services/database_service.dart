@@ -13,6 +13,7 @@ class DatabaseService {
   final _dbRef = FirebaseDatabase.instance.ref('messages');
   final _userRef = FirebaseDatabase.instance.ref('users');
   final _chatsmockRef = FirebaseDatabase.instance.ref('chatsmock');
+  final IsarService isarService = IsarService();
 
   Future<void> testData() async {
     try {
@@ -83,7 +84,6 @@ class DatabaseService {
   Stream<List<User>> get users {
     return _userRef.onValue.map((e) {
       List<User> userList = <User>[];
-      IsarService isarService = IsarService();
       final firebaseUsers =
           Map<dynamic, dynamic>.from(e.snapshot.value as Map<dynamic, dynamic>);
       firebaseUsers.forEach((key, value) {
