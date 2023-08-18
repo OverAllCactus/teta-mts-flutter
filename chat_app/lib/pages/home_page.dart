@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chat_app/main.dart';
 import 'package:chat_app/pages/map_page.dart';
 import 'package:chat_app/pages/settings_page.dart';
@@ -24,11 +26,12 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   final getIt = GetIt.instance;
   int currentPageIndex = 1;
+  late StreamSubscription streamSubscription;
 
   @override
   void initState() {
     super.initState();
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+    streamSubscription = FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       print("onMessageOpenedApp");
       Navigator.of(context).push(_createRoute());
     });
@@ -52,7 +55,13 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void dispose() {
+    super.dispose();
+    streamSubscription.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {    
     return Scaffold(
       body: <Widget>[
         const ContactsListPage(),
