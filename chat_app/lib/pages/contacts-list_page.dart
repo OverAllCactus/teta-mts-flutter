@@ -16,7 +16,6 @@ class ContactsListPage extends ConsumerStatefulWidget {
 }
 
 class _ContactsListPageState extends ConsumerState<ContactsListPage> {
-  final getIt = GetIt.instance;
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(

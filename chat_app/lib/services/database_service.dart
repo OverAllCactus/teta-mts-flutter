@@ -4,17 +4,21 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 
+import '../models/user/db_user.dart';
 import '../models/user/user.dart';
+import 'isar_service.dart';
 
 class DatabaseService {
+
   final _dbRef = FirebaseDatabase.instance.ref('messages');
   final _userRef = FirebaseDatabase.instance.ref('users');
   final _chatsmockRef = FirebaseDatabase.instance.ref('chatsmock');
+  final IsarService isarService = IsarService();
 
   Future<void> testData() async {
     try {
-      final ref = FirebaseDatabase.instance.ref();
-      final snapshot = await ref.child('message').get();
+      final _checkRef = FirebaseDatabase.instance.ref();
+      final snapshot = await _checkRef.child('message').get();
       if (snapshot.exists) {
         print('test value:');
         print(snapshot.value);
@@ -28,12 +32,13 @@ class DatabaseService {
 
   Stream<List<Message>> get messages => _dbRef.onValue.map((e) {
         List<Message> messageList = [];
-        var child = e.snapshot.children;
-        child.forEach((element) {
-          var map = element.value as Map<String, dynamic>;
-          Message message = Message.fromJson(map);
-          messageList.add(message);
+        final firebaseMessages = Map<dynamic, dynamic>.from(
+            e.snapshot.value as Map<dynamic, dynamic>);
+        firebaseMessages.forEach((key, value) {
+          final currentUser = Map<String, dynamic>.from(value);
+          messageList.add(Message.fromJson(currentUser));
         });
+        messageList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
         return messageList;
       });
 
@@ -76,26 +81,32 @@ class DatabaseService {
     }
   }
 
-  Stream<List<User>> get users => _userRef.onValue.map((e) {
-        List<User> userList = [];
-        var child = e.snapshot.children;
-        child.forEach((element) {
-          var map = element.value as Map<String, dynamic>;
-          User user = User.fromJson(map);
-          userList.add(user);
-        });
-        return userList;
+  Stream<List<User>> get users {
+    return _userRef.onValue.map((e) {
+      List<User> userList = <User>[];
+      final firebaseUsers =
+          Map<dynamic, dynamic>.from(e.snapshot.value as Map<dynamic, dynamic>);
+      firebaseUsers.forEach((key, value) {
+        User currentUser = User.fromJson(Map<String, dynamic>.from(value));
+        userList.add(currentUser);
+        DbUser dbUser = DbUser();
+        dbUser.userId = currentUser.id;
+        dbUser.displayName = currentUser.displayName;
+        dbUser.photoUrl = currentUser.photoUrl;
+        isarService.saveUser(dbUser);
       });
+      return userList;
+    });
+  }
 
   Stream<List<User>> get chatsmock => _chatsmockRef.onValue.map((e) {
         List<User> userList = [];
-        var child = e.snapshot.children;
-        child.forEach((element) {
-          var map = element.value as Map<String, dynamic>;
-          User user = User.fromJson(map);
-          userList.add(user);
+        final firebaseUsers = Map<dynamic, dynamic>.from(
+            e.snapshot.value as Map<dynamic, dynamic>);
+        firebaseUsers.forEach((key, value) {
+          final currentUser = Map<String, dynamic>.from(value);
+          userList.add(User.fromJson(currentUser));
         });
-        print(userList.length);
         return userList;
       });
 }
