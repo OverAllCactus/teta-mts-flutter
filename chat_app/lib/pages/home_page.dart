@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:chat_app/main.dart';
-import 'package:chat_app/pages/map_page.dart';
 import 'package:chat_app/pages/settings_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/user/user.dart';
-import 'chat_page.dart';
 import 'chats-list_page.dart';
 import 'contacts-list_page.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
@@ -25,31 +23,24 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   final getIt = GetIt.instance;
-  int currentPageIndex = 1;
+  int currentPageIndex = 2;
   late StreamSubscription streamSubscription;
 
   @override
   void initState() {
     super.initState();
-    streamSubscription = FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      print("onMessageOpenedApp");
+    streamSubscription = FirebaseMessaging.onMessageOpenedApp
+        .listen((RemoteMessage message) async {
       Navigator.of(context).push(_createRoute());
     });
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
-      final id = firebaseUser.uid;
-      final displayName = firebaseUser.phoneNumber ?? 'default name';
-      final photoUrl = firebaseUser.photoURL ?? '';
       Future(() {
-        ref.read(userProvider.notifier).update((state) =>
-            User(id: id, displayName: displayName, photoUrl: photoUrl));
-      });
-    } else {
-      Future(() {
-        ref.read(userProvider.notifier).update((state) => const User(
-            id: 'mock_id',
-            displayName: 'mock_displayName',
-            photoUrl: 'mock_photoUrl'));
+        ref.read(profileProvider.notifier).update((state) => User(
+            id: firebaseUser.uid,
+            displayName: 'User',
+            photoUrl:
+                'https://firebasestorage.googleapis.com/v0/b/chat-app-16547.appspot.com/o/images%2Fimage.png?alt=media&token=73bc4131-8bae-4e67-97dd-02beea4716e3'));
       });
     }
   }
@@ -61,13 +52,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {    
+  Widget build(BuildContext context) {
     return Scaffold(
       body: <Widget>[
         const ContactsListPage(),
         const ChatsListPage(),
         const SettingsPage(),
-        const MapPage()
       ][currentPageIndex],
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -89,10 +79,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             icon: Icon(Icons.settings),
             label: 'Settings',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.map),
-            label: 'Map',
-          ),
         ],
       ),
     );
@@ -100,7 +86,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Route _createRoute() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => const ChatPage(),
+      pageBuilder: (context, animation, secondaryAnimation) => const ChatsListPage(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1, 0);
         const end = Offset.zero;

@@ -6,7 +6,9 @@ import '../main.dart';
 import '../services/database_service.dart';
 
 class MessageFormView extends ConsumerStatefulWidget {
-  const MessageFormView({super.key});
+  const MessageFormView({super.key, required this.chatId});
+
+  final String chatId;
 
   @override
   ConsumerState<MessageFormView> createState() => _MessageFormState();
@@ -17,11 +19,12 @@ class _MessageFormState extends ConsumerState<MessageFormView>
   final TextEditingController _controller = TextEditingController();
   final getIt = GetIt.instance;
   late final AnimationController _animationController;
+
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         lowerBound: 22,
         upperBound: 24,
         vsync: this);
@@ -58,8 +61,8 @@ class _MessageFormState extends ConsumerState<MessageFormView>
                 builder: (_, __) {
                   return IconButton(
                     onPressed: () {
-                      getIt<DatabaseService>().sendMessage(
-                          ref.read(userProvider).id, _controller.text);
+                      getIt<DatabaseService>()
+                          .sendMessage(ref.read(profileProvider).id, widget.chatId, _controller.text);
                       _controller.text = '';
                       _animationController.forward();
                     },

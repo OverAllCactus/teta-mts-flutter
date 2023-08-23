@@ -1,61 +1,66 @@
-import 'package:chat_app/main.dart';
-import 'package:chat_app/models/user/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../main.dart';
 import '../services/database_service.dart';
 import '../view/chat_view.dart';
+import '../view/shimmer_view.dart';
 
-class ChatsListPage extends StatefulWidget {
+class ChatsListPage extends ConsumerStatefulWidget {
   const ChatsListPage({super.key});
 
   @override
-  State<ChatsListPage> createState() => _ChatsListPageState();
+  ConsumerState<ChatsListPage> createState() => _ChatsListPageState();
 }
 
-class _ChatsListPageState extends State<ChatsListPage> {
+class _ChatsListPageState extends ConsumerState<ChatsListPage> {
   final getIt = GetIt.instance;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Consumer(builder: ((context, ref, child) {
-      return StreamBuilder(
-        stream: getIt<DatabaseService>().chatsmock,
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            if (snapshot.data!.isEmpty) {
-              return ChatView(
-                  user:
-                      User(id: 'test', displayName: 'test name', photoUrl: ''));
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Chats',
+            style: GoogleFonts.oswald().copyWith(color: Colors.blue),
+          ),
+        ),
+        body: StreamBuilder(
+          stream:
+              getIt<DatabaseService>().getChats(ref.read(profileProvider).id),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              if (snapshot.data!.isEmpty) {
+                return const Text('Chats list is empty!');
+              } else {
+                return Consumer(
+                  builder: ((context, ref, child) {
+                    return ListView.builder(
+                      reverse: false,
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        return ChatView(chatId: snapshot.data![index]);
+                      },
+                    );
+                  }),
+                );
+              }
             } else {
-              return Scaffold(
-                  appBar: AppBar(
-                      title: Text(
-                    'Chats',
-                    style: GoogleFonts.oswald().copyWith(color: Colors.blue),
-                  )),
-                  body: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Consumer(
-                      builder: ((context, ref, child) {
-                        return ListView.builder(
-                          reverse: false,
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                            return ChatView(user: snapshot.data![index]);
-                          },
-                        );
-                      }),
-                    ),
-                  ));
+              return const ShimmerView();
             }
-          } else {
-            return const Text('Data is not available!');
-          }
-        },
-      );
-    }));
+          },
+        ));
   }
 }

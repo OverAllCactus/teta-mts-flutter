@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:string_to_hex/string_to_hex.dart';
-import 'package:timeago/timeago.dart' as timeago;
-
-import '../models/message/message.dart';
 
 class ShimmerView extends StatelessWidget {
   const ShimmerView({super.key});

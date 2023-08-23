@@ -1,10 +1,13 @@
 import 'package:chat_app/main.dart';
+import 'package:chat_app/models/user/user.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
+
+import '../services/database_service.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -15,38 +18,53 @@ class SettingsPage extends ConsumerStatefulWidget {
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _isEdit = false;
-  bool _isAvatar = false;
-  String _avatarURL = '';
-  Image image = Image.asset('avatar.png');
+  final TextEditingController _controller = TextEditingController();
   final getIt = GetIt.instance;
 
   @override
   void initState() {
     super.initState();
-    _loadAvatar();
   }
 
-  _loadAvatar() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? avatarURL = prefs.getString('avatarURL');
-    if (avatarURL != null) {
-      setState(() {
-        _isAvatar = true;
-        _avatarURL = avatarURL;
-      });
-    }
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
   }
 
   void _edit() {
     setState(() {
+      _controller.text = ref.read(profileProvider).displayName;
       _isEdit = true;
     });
   }
 
   void _done() {
+    if (_controller.text.isNotEmpty) {
+      User updatedUser = User(
+          id: ref.read(profileProvider).id,
+          displayName: _controller.text,
+          photoUrl: ref.read(profileProvider).photoUrl);
+      ref.read(profileProvider.notifier).update((state) => updatedUser);
+    }
     setState(() {
       _isEdit = false;
     });
+  }
+
+  void _changeAvatar() async {
+    String newAvatarUrl = await getIt<DatabaseService>().changeAvatar();
+    if (newAvatarUrl.isNotEmpty) {
+      User updatedUser = User(
+          id: ref.read(profileProvider).id,
+          displayName: ref.read(profileProvider).displayName,
+          photoUrl: newAvatarUrl);
+      ref.read(profileProvider.notifier).update((state) => updatedUser);
+    }
+  }
+
+  void _copyProfile() {
+    Clipboard.setData(ClipboardData(text: ref.read(profileProvider).id));
   }
 
   Future<void> _signOut() async {
@@ -63,34 +81,49 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             style: GoogleFonts.oswald().copyWith(color: Colors.blue),
           ),
           actions: [
-            _isEdit
-                ? TextButton(onPressed: _done, child: Text('Done'))
-                : TextButton(onPressed: _edit, child: Text('Edit'))
+            TextButton(onPressed: _copyProfile, child: const Text('Share'))
           ],
         ),
         body: Container(
           width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.only(top: 32),
+          padding: const EdgeInsets.only(top: 32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               GestureDetector(
-                child: const CircleAvatar(
-                  backgroundImage: AssetImage('avatar.png'),
+                onTap: _changeAvatar,
+                child: CircleAvatar(
+                  backgroundImage: (ref
+                          .read(profileProvider)
+                          .photoUrl
+                          .isNotEmpty)
+                      ? Image.network(ref.read(profileProvider).photoUrl).image
+                      : Image.asset('assets/avatar.png').image,
                   backgroundColor: Colors.transparent,
                   radius: 32,
                 ),
               ),
               _isEdit
                   ? Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 64),
-                      child: TextField(),
+                      padding: EdgeInsets.symmetric(horizontal: 64),
+                      child: TextField(
+                        controller: _controller,
+                        style: const TextStyle(fontSize: 16.0),
+                        decoration: const InputDecoration(
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 8.0)),
+                      ),
                     )
                   : Text(
-                      ref.watch(userProvider).displayName,
-                      style: TextStyle(fontSize: 24),
+                      ref.watch(profileProvider).displayName,
+                      style: const TextStyle(fontSize: 24),
                     ),
+              _isEdit
+                  ? TextButton(onPressed: _done, child: const Text('Done'))
+                  : TextButton(onPressed: _edit, child: const Text('Edit')),
               GestureDetector(
                 onTap: () {
                   _signOut();

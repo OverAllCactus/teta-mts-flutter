@@ -1,4 +1,3 @@
-import 'package:chat_app/pages/chat_page.dart';
 import 'package:chat_app/pages/home_page.dart';
 import 'package:chat_app/services/database_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -7,21 +6,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide PhoneAuthProvider, User;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 
-import 'models/message/message.dart';
 import 'models/user/user.dart';
 
 final DatabaseService databaseService = DatabaseService();
-final userProvider = StateProvider<User>((ref) =>
-    const User(id: 'id', displayName: 'displayName', photoUrl: 'photoUrl'));
-final messagesProvider =
-    StateProvider.autoDispose<Stream<List<Message>>>((ref) {
-  return databaseService.messages;
-});
-final contactsProvider = StateProvider.autoDispose<Stream<List<User>>>((ref) {
-  return databaseService.users;
-});
+final profileProvider = StateProvider<User>((ref) =>
+    const User(id: '', displayName: 'unauthorized user', photoUrl: ''));
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,7 +49,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       initialRoute:
-          '/home',
+          FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
       routes: {
         '/sign-in': (context) {
           return SignInScreen(
